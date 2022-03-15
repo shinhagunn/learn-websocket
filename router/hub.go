@@ -1,7 +1,5 @@
 package router
 
-import "time"
-
 type Hub struct {
 	clients    map[*Client]bool
 	broadcast  chan []byte
@@ -19,22 +17,6 @@ func NewHub() *Hub {
 }
 
 func (h *Hub) Run() {
-	go func() {
-		for {
-			h.broadcast <- []byte("Server: ping (per 10s)")
-			for client := range h.clients {
-				client.res = true
-			}
-			time.Sleep(10 * time.Second)
-			for client := range h.clients {
-				if client.res {
-					h.unregister <- client
-					client.conn.Close()
-				}
-			}
-		}
-	}()
-
 	for {
 		select {
 		case client := <-h.register:
