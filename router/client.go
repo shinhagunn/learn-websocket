@@ -1,6 +1,7 @@
 package router
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"time"
@@ -47,7 +48,16 @@ func (c *Client) readPump() {
 			break
 		}
 
-		c.send <- message
+		if bytes.Equal(message, []byte("Client: pong (respond)")) {
+			fmt.Println("OK")
+			c.res = false
+		} else if bytes.Equal(message, []byte("ping")) {
+			message = []byte("Server: pong")
+			c.send <- message
+		} else {
+			message = []byte(fmt.Sprintf("Server: %s", message))
+			c.send <- message
+		}
 	}
 }
 
